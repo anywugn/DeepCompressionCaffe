@@ -1,4 +1,6 @@
-
+'''
+Modified version by yuw453
+'''
 import sys
 import os
 import numpy as np
@@ -23,7 +25,7 @@ def kmeans(net, layers, num_c=16, initials=None, snapshot=False, alpha=0.0):
             max_W = np.max(W)                                                               
             initial_uni = np.linspace(min_W, max_W, num_c[idx] - 1)                         
                                                                                             
-            codebook[layer], _= scv.kmeans(W, initial_uni, compress=False, alpha=alpha) 
+            codebook[layer], _= scv.kmeans(W, initial_uni) 
                                                                                             
         elif type(initials) == type(np.array([])):                                          
             codebook[layer], _ = scv.kmeans(W, initials)                                    
@@ -135,7 +137,7 @@ def get_csc(codes_W, codes_b, bank_num=64, max_jump = 16):
     return ptr, spm, ind, layer_shift[:-1] #pointer to the start address for ptr of each layer
 
 def get():
-# os.system("cd $CAFFE_ROOT")
+    os.system("current CAFFE_ROOT = $CAFFE_ROOT\n")
     caffe_root = os.environ["CAFFE_ROOT"]
     #caffe_root = "C:\Users\wy624\Downloads\caffe_MSVC14_Release_CPU_Py3.6"
 
@@ -144,9 +146,12 @@ def get():
     import caffe
 
     #caffe.set_mode_gpu()      
+    #caffe.set_device(0) 
+    
     caffe.set_mode_cpu()                                         
-    caffe.set_device(0)                                                
+                                                   
     option = 'alexnet'
+
     if option == 'lenet5':                                             
         prototxt = '3_prototxt_solver/lenet5/train_val.prototxt'       
         caffemodel = '4_model_checkpoint/lenet5/lenet5.caffemodel'     
@@ -157,6 +162,9 @@ def get():
         prototxt = '3_prototxt_solver/vgg16/train_val.prototxt'     
         caffemodel = '4_model_checkpoint/vgg16/vgg16_13x.caffemodel'
 
+    #debug
+    prototxt = 'models/bvlc_reference_caffenet/deploy.prototxt'
+    caffemodel = 'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel'
 
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
     if option == 'lenet5':
@@ -170,7 +178,12 @@ def get():
     codes_W, codes_b = get_codes(net, codebook)
     ptr, spm, ind, layer_shift= get_csc(codes_W, codes_b, bank_num = bank_num, max_jump = 16)
 
-    simulator_root = os.environ['SIMULATOR_PATH']
+    #in linux: export SIMULATOR_PATH=/workspace
+    #simulator_root = os.environ['SIMULATOR_PATH']
+    
+    #in debug
+    simulator_root = '.'
+
     os.system("rm -rf %s/data/ptr"%simulator_root)
     os.system("rm -rf %s/data/spm"%simulator_root)
     os.system("mkdir %s/data/ptr"%simulator_root)
