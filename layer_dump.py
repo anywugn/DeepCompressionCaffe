@@ -193,19 +193,19 @@ def get():
     mem_a = [0] * bank_num
     for idx in range(bank_num):
         with open("%s/data/ptr/ptr%d.dat"%(simulator_root, idx), 'wb') as f:
-            ptr[idx].tofile(f)
+            ptr[idx].tofile(f, sep=' ')
 
         with open("%s/data/spm/spm%d.dat"%(simulator_root, idx), 'wb') as f:
             mem = np.transpose(np.array([spm[idx],ind[idx]])).flatten()
             if (mem.size > max_memsize):
                 max_memsize = mem.size
-            mem.tofile(f)
+            mem.tofile(f, sep=' ')
             mem_a[idx] = mem
 
     with open("%s/data/arithm.dat"%simulator_root, 'wb') as f:
         for key in codebook:
             codebook_t = np.array(codebook[key], dtype=np.float32)
-            codebook_t.tofile(f)
+            codebook_t.tofile(f, sep=' ')
         
 # Render config header file
     template = r'''
@@ -266,10 +266,10 @@ def get():
         max_size = max_inputsize, act_length = act_length, buffer_size = buffer_size)
 
     with open("%s/data/act.dat"%simulator_root, 'wb') as f:
-        act.tofile(f)
+        act.tofile(f, sep=' ')
 
     with open("%s/data/groundtruth.dat"%simulator_root, 'wb') as f:
-        ground_truth.tofile(f)
+        ground_truth.tofile(f, sep=' ')
      
     with open("%s/src/params.h"%(simulator_root), 'w') as f:
         f.write(config_file)
